@@ -1,0 +1,77 @@
+version: '3.8'
+services:
+  mysqldb:
+    image: mysql:5.7
+    restart: unless-stopped
+    environment:
+      - TZ=America/Sao_Paulo
+      - MYSQL_ROOT_PASSWORD=$MYSQLDB_ROOT_PASSWORD
+      - MYSQL_DATABASE=$MYSQLDB_DATABASE
+    ports:
+      - $MYSQLDB_LOCAL_PORT:$MYSQLDB_DOCKER_PORT
+    volumes:
+      - ./database:/tmp/database
+    command: mysqld --init-file="/tmp/database/install_db.sql"
+    networks:
+      - backend
+
+  api:
+    depends_on:
+      - mysqldb
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=mysqldb
+      - DB_USER=$MYSQLDB_USER
+      - DB_PASSWORD=$MYSQLDB_ROOT_PASSWORD
+      - DB_NAME=$MYSQLDB_DATABASE
+      - DB_PORT=$MYSQLDB_DOCKER_PORT
+      - GOOGLE_API_KEY=$GOOGLE_API_KEY
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    command: npm run dev
+    stdin_open: true
+    tty: true
+    networks:
+      - backend
+      - frontend
+
+  client-ui:
+    depends_on:
+      - api
+    build:
+      context: ./client
+      args:
+        - $REACT_LOCAL_PORT:$REACT_DOCKER_PORT
+    ports:
+      - 80:3000
+    volumes:
+      - ./client:/client
+      - /client/node_modules
+    command: ["npm", "start"]
+    networks:
+      - frontend  
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"  # Acesse o phpMyAdmin em http://localhost:8081
+    environment:
+      - PMA_HOST=mysqldb
+      - PMA_USER=$MYSQLDB_USER
+      - PMA_PASSWORD=$MYSQLDB_ROOT_PASSWORD
+    networks:
+      - backend
+
+volumes: 
+  db:
+
+networks:
+  backend:
+  frontend:
