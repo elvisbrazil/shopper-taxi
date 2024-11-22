@@ -1,37 +1,71 @@
-CREATE DATABASE  IF NOT EXISTS `sistema` ;
+CREATE DATABASE IF NOT EXISTS `sistema` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `sistema`;
 
 
-
-CREATE TABLE IF NOT EXISTS`grades` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `letra` varchar(255) NOT NULL,
-  `estado` varchar(255) NOT NULL,
-  `nome` varchar(255) ,
-  `horain` varchar(255) ,
-  `horaout` varchar(255) ,
-  `ordem` int(10) ,
-  `createdAt` datetime DEFAULT NULL,
-  `updatedAt` datetime DEFAULT NULL,
-  `deletedAt` datetime DEFAULT NULL,
+-- Tabela de motoristas
+CREATE TABLE IF NOT EXISTS `motoristas` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(255) NOT NULL,
+  `descricao` TEXT,
+  `carro` VARCHAR(255),
+  `avaliacao` VARCHAR(255),
+  `taxa_km` DECIMAL(10, 2),
+  `minimo` DECIMAL(10, 2),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 ;
-INSERT INTO `grades` VALUES (1,'Era uma Vez','A','PA','19:30','20:40',NULL,'2022-11-12 07:57:43','2022-11-12 07:57:43',NULL),(2,'Chocolate com pimenta','A','PA','22','23',NULL,'2022-11-12 07:58:08','2022-11-12 07:58:08',NULL),(3,'Terra Nossa','Q','PA','23:30','00:00',NULL,'2022-11-12 07:59:08','2022-11-12 07:59:08',NULL);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Inserir dados iniciais na tabela de motoristas
+INSERT INTO `motoristas` (`nome`, `descricao`, `carro`, `avaliacao`, `taxa_km`, `minimo`) VALUES
+('Homer Simpson', 'Olá! Sou o Homer, seu motorista camarada! Relaxe e aproveite o passeio, com direito a rosquinhas e boas risadas (e talvez alguns desvios).', 'Plymouth Valiant 1973 rosa e enferrujado', '2/5', 2.50, 1),
+('Dominic Toretto', 'Ei, aqui é o Dom. Pode entrar, vou te levar com segurança e rapidez ao seu destino. Só não mexa no rádio, a playlist é sagrada.', 'Dodge Charger R/T 1970 modificado', '4/5', 5.00, 5),
+('James Bond', 'Boa noite, sou James Bond. À seu dispor para um passeio suave e discreto. Aperte o cinto e aproveite a viagem.', 'Aston Martin DB5 clássico', '5/5', 10.00, 10);
 
-CREATE TABLE IF NOT EXISTS`saidas` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `letra` varchar(255) NOT NULL,
-  `estado` varchar(255) NOT NULL,
-  `hora` varchar(255) ,
-  `estado2` varchar(255) ,
-  `nome` varchar(255) ,
-  `ordem` int(10) ,
-  `createdAt` datetime DEFAULT NULL,
-  `updatedAt` datetime DEFAULT NULL,
-  `deletedAt` datetime DEFAULT NULL,
+-- Tabela de usuários
+CREATE TABLE IF NOT EXISTS `usuarios` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `usuario_id` VARCHAR(255) NOT NULL,
+  `senha` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 ;
-INSERT INTO `saidas` VALUES (1,'B','MA','12:00','MA','noise',NULL,'2022-11-12 08:00:41','2022-11-12 08:00:41',NULL),(2,'B','RJ','Tv Globinho','22:00','22:30',NULL,'2022-11-12 08:01:55','2022-11-12 08:01:55',NULL),(3,'B','RJ','Tv Globinho','22:00','22:30',NULL,'2022-11-12 08:01:57','2022-11-12 08:01:57',NULL),(4,'B','RJ','Tv Globinho','22:00','22:30',NULL,'2022-11-12 08:02:00','2022-11-12 08:02:00',NULL),(5,'B','RJ','Tv Globinho','22:00','22:30',NULL,'2022-11-12 08:02:00','2022-11-12 08:02:00','2022-11-12 08:04:08'),(6,'B','RJ','Tv Globinho','22:00','22:30',NULL,'2022-11-12 08:02:00','2022-11-12 08:02:00','2022-11-12 08:04:07'),(7,'B','RJ','Tv Globinho','22:00','22:30',NULL,'2022-11-12 08:02:01','2022-11-12 08:02:01','2022-11-12 08:04:06'),(8,'B','RJ','Tv Globinho','22:00','22:30',NULL,'2022-11-12 08:02:01','2022-11-12 08:02:01','2022-11-12 08:04:05'),(9,'B','RJ','Tv Globinho','22:00','22:30',NULL,'2022-11-12 08:02:01','2022-11-12 08:02:01','2022-11-12 08:04:04'),(10,'B','RJ','Tv Globinho','22:00','22:30',NULL,'2022-11-12 08:02:01','2022-11-12 08:02:01','2022-11-12 08:04:04'),(11,'B','RJ','Tv Globinho','22:00','22:30',NULL,'2022-11-12 08:02:01','2022-11-12 08:02:01','2022-11-12 08:04:03'),(12,'B','RJ','Tv Globinho','22:00','22:30',NULL,'2022-11-12 08:02:02','2022-11-12 08:02:02','2022-11-12 08:04:03'),(13,'B','RJ','Tv Globinho','22:00','22:30',NULL,'2022-11-12 08:02:02','2022-11-12 08:02:02','2022-11-12 08:04:02'),(14,'B','RJ','Tv Globinho','22:00','22:30',NULL,'2022-11-12 08:02:06','2022-11-12 08:02:06','2022-11-12 08:04:02'),(15,'B','RJ','Tv Globinho','22:00','22:30',NULL,'2022-11-12 08:02:06','2022-11-12 08:02:06','2022-11-12 08:04:01'),(16,'B','RJ','Tv Globinho','22:00','22:30',NULL,'2022-11-12 08:02:07','2022-11-12 08:02:07','2022-11-12 08:04:02'),(17,'B','RJ','Tv Globinho','22:00','22:30',NULL,'2022-11-12 08:02:07','2022-11-12 08:02:07','2022-11-12 08:04:01'),(18,'B','RJ','Tv Globinho','22:00','',NULL,'2022-11-12 08:02:12','2022-11-12 08:02:12','2022-11-12 08:04:00'),(19,'B','RJ','Tv Globinho','','',NULL,'2022-11-12 08:02:14','2022-11-12 08:02:14','2022-11-12 08:03:57'),(20,'B','RJ','','','',NULL,'2022-11-12 08:02:16','2022-11-12 08:02:16','2022-11-12 08:03:56'),(21,'B','sdfasd','asdf','asfd','asfd',NULL,'2022-11-12 08:02:26','2022-11-12 08:02:26','2022-11-12 08:03:56'),(22,'B','sdfasd','asdf','asfd','asfd',NULL,'2022-11-12 08:02:27','2022-11-12 08:02:27','2022-11-12 08:03:55'),(23,'B','sdfasd','asdf','asfd','asfd',NULL,'2022-11-12 08:02:27','2022-11-12 08:02:27','2022-11-12 08:03:54'),(24,'B','sdfasd','asdf','asfd','asfd',NULL,'2022-11-12 08:02:28','2022-11-12 08:02:28','2022-11-12 08:03:54'),(25,'B','sdfasd','asdf','asfd','asfd',NULL,'2022-11-12 08:02:28','2022-11-12 08:02:28','2022-11-12 08:03:54'),(26,'B','sdfasd','asdf','asfd','asfd',NULL,'2022-11-12 08:02:28','2022-11-12 08:02:28','2022-11-12 08:03:53'),(27,'B','sdfasd','asdf','asfd','asfd',NULL,'2022-11-12 08:02:33','2022-11-12 08:02:33','2022-11-12 08:03:53'),(28,'B','sdfasd','asdf','asfd','asfd',NULL,'2022-11-12 08:02:33','2022-11-12 08:02:33','2022-11-12 08:03:53'),(29,'B','sdfasd','asdf','asfd','asfd',NULL,'2022-11-12 08:02:33','2022-11-12 08:02:33','2022-11-12 08:03:53'),(30,'B','sdfasd','asdf','asfd','asfd',NULL,'2022-11-12 08:02:45','2022-11-12 08:02:45','2022-11-12 08:03:53'),(31,'B','sdfasd','asdf','asfd','asfd',NULL,'2022-11-12 08:02:45','2022-11-12 08:02:45','2022-11-12 08:03:52'),(32,'B','sdfasd','asdf','asfd','asfd',NULL,'2022-11-12 08:02:46','2022-11-12 08:02:46','2022-11-12 08:03:52'),(33,'B','sdfasd','asdf','asfd','asfd',NULL,'2022-11-12 08:02:46','2022-11-12 08:02:46','2022-11-12 08:03:52'),(34,'B','sdfasd','asdf','asfd','asfd',NULL,'2022-11-12 08:02:46','2022-11-12 08:02:46','2022-11-12 08:03:52'),(35,'B','sdfasd','asdf','asfd','asfd',NULL,'2022-11-12 08:02:52','2022-11-12 08:02:52','2022-11-12 08:03:52'),(36,'B','sdfasd','asdf','asfd','asfd',NULL,'2022-11-12 08:02:52','2022-11-12 08:02:52','2022-11-12 08:03:52'),(37,'B','sdfasd','asdf','asfd','asfd',NULL,'2022-11-12 08:02:52','2022-11-12 08:02:52','2022-11-12 08:03:55'),(38,'B','sdfasd','asdf','asfd','asfd',NULL,'2022-11-12 08:02:52','2022-11-12 08:02:52','2022-11-12 08:03:55'),(39,'B','sdfasd','asdf','asfd','asfd',NULL,'2022-11-12 08:02:56','2022-11-12 08:02:56','2022-11-12 08:03:57'),(40,'B','sdfasd','asdf','asfd','asfd',NULL,'2022-11-12 08:02:56','2022-11-12 08:02:56','2022-11-12 08:03:56'),(41,'B','sdfasd','asdf','asfd','asfd',NULL,'2022-11-12 08:02:56','2022-11-12 08:02:56','2022-11-12 08:03:59'),(42,'asdfaf','asdfa','sss','sss','ss',NULL,'2022-11-12 08:03:06','2022-11-12 08:03:06','2022-11-12 08:03:59'),(43,'asdfaf','asdfa','sss','sss','ss',NULL,'2022-11-12 08:03:06','2022-11-12 08:03:06','2022-11-12 08:03:59'),(44,'asdfaf','asdfa','sss','sss','ss',NULL,'2022-11-12 08:03:07','2022-11-12 08:03:07','2022-11-12 08:03:59'),(45,'asdfaf','asdfa','sss','sss','ss',NULL,'2022-11-12 08:03:07','2022-11-12 08:03:07','2022-11-12 08:03:58');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Inserir usuário de teste na tabela de usuários
+INSERT INTO `usuarios` (`usuario_id`, `senha`) VALUES
+('1', 'senha123');
+
+-- Tabela de viagens
+CREATE TABLE IF NOT EXISTS `viagens` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `usuario_id` INT NOT NULL,
+  `origin` VARCHAR(255) NOT NULL,
+  `destination` VARCHAR(255) NOT NULL,
+  `distancia_km` DECIMAL(10, 2),
+  `valor` DECIMAL(10, 2),
+  `data` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`usuario_id`) REFERENCES `usuarios`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabela de rotas
+CREATE TABLE IF NOT EXISTS `rotas` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `destination_id` INT NOT NULL,
+  `latitude` DECIMAL(10, 8),
+  `longitude` DECIMAL(11, 8),
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`destination_id`) REFERENCES `viagens`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabela de logs do Google Maps
+CREATE TABLE IF NOT EXISTS `google_maps_results` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `origin` VARCHAR(255) NOT NULL,
+  `destination` VARCHAR(255) NOT NULL,
+  `response_api` TEXT,
+  `car` VARCHAR(255),
+  `id_driver` INT,
+  `name_driver` VARCHAR(255),
+  `name_client` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 

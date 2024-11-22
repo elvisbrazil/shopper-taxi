@@ -1,20 +1,22 @@
-import express from 'express'
-import { Router, Request, Response } from 'express';
+import express from 'express';
 import dotenv from 'dotenv';
+import rideRoutes from './routes/rideRoutes';
+
 dotenv.config();
 
 const app = express();
+app.use(express.json());
 
-const route = Router()
+app.get('/', (req, res) => {
+  res.send('<h1>Bem vindo à API da ShopperTaxi</h1>');
+});
 
-app.use(express.json())
-
-route.get('/', (req: Request, res: Response) => {
-  res.json({ message: 'configudrado tasdfasfype' })
-})
-
-app.use(route)
+app.use('/ride', rideRoutes);
 
 
-const PORT = process.env.NODE_DOCKER_PORT ;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+
+const PORT = process.env.NODE_DOCKER_PORT || 8080;
+
+app.listen(PORT, () => {
+  console.log(`ShopperTaxi 🚀, api rodando na porta ${PORT}`);
+});
