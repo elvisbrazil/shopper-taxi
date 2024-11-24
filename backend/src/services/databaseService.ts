@@ -1,21 +1,15 @@
-import mysql from 'mysql2/promise';
+import connect from '../database/database';
 import { RideEstimateResponse, RideConfirmRequest } from '../types';
 
 export class DatabaseService {
-  private connection: mysql.Connection;
+  private connection: any;
 
   constructor() {
     this.connect();
   }
 
   private async connect() {
-    this.connection = await mysql.createConnection({
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT),
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-    });
+    this.connection = await connect();
   }
 
   async saveGoogleMapsResult(estimate: RideEstimateResponse, userId: string) {
@@ -141,13 +135,7 @@ export class DatabaseService {
   }
 
   async confirmRide(rideDetails: any) {
-    const connection = await mysql.createConnection({
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT),
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-    });
+    const connection = await connect();
 
     try {
       // Verifique se todos os parâmetros estão definidos
