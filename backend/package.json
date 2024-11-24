@@ -12,7 +12,8 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "mysql2": "^3.11.4",
-    "mysql2-promise": "^0.1.4"
+    "mysql2-promise": "^0.1.4",
+    "wait-port": "^1.1.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
