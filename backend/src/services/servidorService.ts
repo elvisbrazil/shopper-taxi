@@ -2,8 +2,13 @@ import express from 'express';
 import waitPort from 'wait-port';
 import rideRoutes from '../routes/rideRoutes';
 import { DB_HOST, DB_PORT } from '../database/database';
+const cors = require('cors');
 
 const app = express();
+
+app.use(cors());  // Configurar CORS
+
+
 app.use(express.json());
 
 app.get('/', (req, res) => {

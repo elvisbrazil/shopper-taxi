@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { RideEstimateRequest, RideEstimateResponse, Location, DriverOption } from '../types';
 import { DatabaseService } from './databaseService';
+
 export class GoogleMapsService {
   private apiKey: string;
 
@@ -47,13 +48,21 @@ export class GoogleMapsService {
           key: this.apiKey,
         },
       });
-  
-      console.log('Response from geocoding:', response.data); // Adicionando log
-  
+
+      console.log('Response from geocoding:', response.data);
+
+      if (response.data.status === 'ZERO_RESULTS') {
+        console.warn('Endereço não encontrado:', address);
+        return {
+          latitude: 0,
+          longitude: 0,
+        };
+      }
+
       if (response.data.status !== 'OK' || response.data.results.length === 0) {
         throw new Error('Erro ao geocodificar o endereço: ' + response.data.status);
       }
-  
+
       const location = response.data.results[0].geometry.location;
       return {
         latitude: location.lat,
@@ -61,7 +70,7 @@ export class GoogleMapsService {
       };
     } catch (error) {
       console.error('Erro na geocodificação:', error);
-      throw error; // Propagar o erro
+      throw error;
     }
   }
 
@@ -80,7 +89,16 @@ export class GoogleMapsService {
         },
       });
 
-      console.log('Response from distance matrix API:', response.data); // Adicionando log
+      console.log('Response from distance matrix API:', response.data);
+
+      if (response.data.status === 'ZERO_RESULTS') {
+        console.warn('Detalhes da rota não encontrados para os pontos fornecidos.');
+        return {
+          distance: 0,
+          duration: 0,
+          rawResponse: response.data,
+        };
+      }
 
       if (response.data.status !== 'OK' || response.data.rows.length === 0) {
         throw new Error('Erro ao obter detalhes da rota: ' + response.data.status);
@@ -98,7 +116,7 @@ export class GoogleMapsService {
       };
     } catch (error) {
       console.error('Erro ao obter detalhes da rota:', error);
-      throw error; // Propagar o erro
+      throw error;
     }
   }
 
@@ -106,10 +124,10 @@ export class GoogleMapsService {
     // Aqui você deve implementar a lógica para buscar motoristas do banco baseado na distância
     // Este é um exemplo fictício para ilustrar como você pode retornar motoristas
     const driverOptions: DriverOption[] = [
-      { id: 1, name: 'Motorista A', price: distance * 1.5 }, // Exemplo de cálculo de preço
-      { id: 2, name: 'Motorista B', price: distance * 1.7 },
+      { id: 1, name: 'Motorista A', description: 'Descrição A', vehicle: 'Veículo A', review: { rating: 4, comment: '' }, value: distance * 1.5 },
+      { id: 2, name: 'Motorista B', description: 'Descrição B', vehicle: 'Veículo B', review: { rating: 5, comment: '' }, value: distance * 1.7 },
     ];
-    
+
     return driverOptions;
   }
 }

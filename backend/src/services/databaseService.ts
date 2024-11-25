@@ -96,7 +96,7 @@ export class DatabaseService {
 
   async getLastRideDetails(usuario_id: string) {
     const query = `
-      SELECT * FROM google_maps_results 
+      SELECT * FROM viagens 
       WHERE usuario_id = ? 
       ORDER BY id DESC 
       LIMIT 1
@@ -159,17 +159,6 @@ export class DatabaseService {
           rideDetails.value,
           'aceita',
           viagemId
-        ]
-      );
-
-      // Atualiza google_maps_results
-      await connection.query(
-        'UPDATE google_maps_results SET id_driver = ?, name_driver = ? WHERE usuario_id = ? AND status = ?',
-        [
-          rideDetails.driver.id,
-          rideDetails.driver.name,
-          rideDetails.customer_id,
-          'sucesso'
         ]
       );
 
