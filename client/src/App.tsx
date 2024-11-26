@@ -7,9 +7,8 @@ import AutocompleteInput from './components/Autocomplet';
 import UserIdInput from './components/UserIdInput';
 import Map from './components/Map';
 import DriverOptions from './components/DriverOption';
-
-
 import { MapSection } from './styles/mapStyles';
+import toast, { Toaster } from 'react-hot-toast';
 
 const MainContainer = styled.main`
   display: flex;
@@ -120,9 +119,21 @@ export default function Home() {
     e.preventDefault();
     setError('');
 
+    // Verificar se o ID do usuário está preenchido
+    if (!customer_id) {
+      toast.error('O ID do usuário não pode estar em branco.');
+      return;
+    }
+
     // Verificar se os campos de origem e destino estão preenchidos
     if (!origin || !destination) {
-      setError('Por favor, preencha os campos de origem e destino.');
+      toast.error('Por favor, preencha os campos de origem e destino.');
+      return;
+    }
+
+    // Verificar se os endereços de origem e destino são diferentes
+    if (origin === destination) {
+      toast.error('Os endereços de origem e destino não podem ser o mesmo endereço.');
       return;
     }
 
@@ -138,15 +149,16 @@ export default function Home() {
       });
 
       if (!response.ok) {
-        throw new Error(`Erro ao solicitar estimativa: ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Erro ao solicitar estimativa: ${response.statusText}`);
       }
 
       const data = await response.json();
       console.log('Resposta do backend:', data);
       setResponse(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao solicitar estimativa:', error);
-      setError('Erro ao solicitar estimativa. Por favor, tente novamente.');
+      toast.error(error.message || 'Erro ao solicitar estimativa. Por favor, tente novamente.');
     }
   };
 
@@ -165,6 +177,7 @@ export default function Home() {
 
   return (
     <MainContainer>
+      <Toaster position="bottom-center" />
       <FormSection>
         <Card>
           <CardHeader>

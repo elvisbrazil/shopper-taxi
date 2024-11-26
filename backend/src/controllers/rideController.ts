@@ -1,27 +1,31 @@
 import { Request, Response } from 'express';
 import { GoogleMapsService } from '../services/googleMapsService';
 import { DatabaseService } from '../services/databaseService';
+import { RideService } from '../services/rideService';
 
 export class RideController {
   private googleMapsService: GoogleMapsService;
   private databaseService: DatabaseService;
+  private rideService: RideService;
 
   constructor() {
     this.googleMapsService = new GoogleMapsService();
     this.databaseService = new DatabaseService();
+    this.rideService = new RideService();
   }
-
+/// Metodo para Estimar a viagem
   async estimateRide(req: Request, res: Response): Promise<void> {
     try {
       const { customer_id, origin, destination } = req.body;
-           // Verificação básica dos dados fornecidos
-           if (!customer_id || !origin || !destination) {
-            res.status(400).json({
-              error_code: 'INVALID_DATA',
-              error_description: 'Os dados fornecidos no corpo da requisição são inválidos.',
-            });
-            return;
-          }
+
+      // Verificação básica dos dados fornecidos
+      if (!customer_id || !origin || !destination) {
+        return res.status(400).json({
+          error_code: 'INVALID_DATA',
+          error_description: 'Os dados fornecidos no corpo da requisição são inválidos.',
+        });
+      }
+
       const estimate = await this.googleMapsService.estimateRide({ 
         customer_id, origin, destination 
       });
@@ -44,29 +48,74 @@ export class RideController {
       res.status(500).json({ error: 'Erro na estimativa de corrida' });
     }
   }
-
+  /// Metodo para Confirmar a viagem
+  
   async confirmRide(req: Request, res: Response): Promise<void> {
     try {
-      const usuario_id = req.body.customer_id;
-      if (!usuario_id) {
-        throw new Error('ID do usuário não está disponível.');
+      const { customer_id, origin, destination, distance, driver } = req.body;
+  
+      // Verificação básica dos dados fornecidos
+      if (!customer_id || !origin || !destination || distance === undefined) {
+        return res.status(400).json({
+          error_code: 'INVALID_DATA',
+          error_description: 'Os dados fornecidos no corpo da requisição são inválidos.',
+        });
       }
-
-      const lastRideDetails = await this.databaseService.getLastRideDetails(usuario_id);
+  
+      // Verifica se o driver.id está presente
+      if (!driver || !driver.id) {
+        return res.status(404).json({
+          error_code: 'DRIVER_NOT_FOUND',
+          error_description: 'Motorista não encontrado.',
+        });
+      }
+  
+      // Verifica se o motorista existe
+      const driverExists = await this.databaseService.driverExists(driver.id);
+      if (!driverExists) {
+        return res.status(404).json({
+          error_code: 'DRIVER_NOT_FOUND',
+          error_description: `Motorista não encontrado.`,
+        });
+      }
+  
+      // Verifica se há detalhes da última corrida
+      const lastRideDetails = await this.databaseService.getLastRideDetails(customer_id);
       if (!lastRideDetails) {
-        throw new Error(`Nenhuma corrida encontrada para o usuário com ID ${usuario_id}.`);
+        return res.status(400).json({
+          error_code: 'RIDE_NOT_FOUND',
+          error_description: `Os dados fornecidos no corpo da requisição são inválidos.`,
+        });
       }
+      const driverDetails = await this.databaseService.getDriverById(driver.id);
+      const minDistance = driverDetails.minimo; // Supondo que a coluna se chama 'minimo'
 
-      const rideDetails = this.buildRideDetails(req.body, lastRideDetails);
-
-      const confirmation = await this.databaseService.confirmRide(rideDetails);
+      // Verifica se a distância é válida para o motorista
+      if (distance < minDistance) {
+        return res.status(406).json({
+          error_code: 'INVALID_DISTANCE',
+          error_description: 'Quilometragem inválida para o motorista.',
+        });
+      }
+      const rideDetailsWithLastRide = this.buildRideDetails(req.body, lastRideDetails);
+      
+      // Confirma a corrida
+      const confirmation = await this.databaseService.confirmRide(rideDetailsWithLastRide);
       res.status(200).json(confirmation);
     } catch (error) {
       console.error('Erro ao confirmar corrida:', error);
-      res.status(500).json({ error: 'Erro ao confirmar corrida' });
+  
+      // Se não houver um status, retorna um erro 500 padrão
+      res.status(500).json({
+        error_code: 'INTERNAL_SERVER_ERROR',
+        error_description: 'Erro ao confirmar corrida',
+      });
     }
   }
 
+
+
+  
   private async getDriverOptions(distance: number): Promise<any[]> {
     const drivers = await this.databaseService.getAllDrivers();
     return drivers.map((driver: any) => ({
@@ -82,19 +131,11 @@ export class RideController {
     })).sort((driverA: any, driverB: any) => driverA.value - driverB.value); // Ordena por valor da corrida
   }
 
-  private buildRideDetails(body: any, lastRideDetails: any): any {
+  private buildRideDetails(newRideDetails: any, lastRideDetails: any): any {
+    // Lógica para construir os detalhes da corrida
     return {
-      customer_id: body.customer_id,
-      origin: lastRideDetails.origin,
-      destination: lastRideDetails.destination,
-      distance: lastRideDetails.distance,
-      duration: lastRideDetails.duration,
-      driver: body.driver,
-      value: body.value, // Valor da corrida
-      destinationCoordinates: {
-        latitude: lastRideDetails.destination_latitude,
-        longitude: lastRideDetails.destination_longitude,
-      },
+      ...lastRideDetails,
+      ...newRideDetails,
     };
   }
 }

@@ -16,7 +16,7 @@ export class RideHistoryController {
       if (!customer_id) {
         return res.status(400).json({
           error_code: "INVALID_DATA",
-          error_description: "O id do usuário não pode estar em branco."
+          error_description: "Nenhum registro encontrado"
         });
       }
 
@@ -25,7 +25,7 @@ export class RideHistoryController {
         if (!driverExists) {
           return res.status(400).json({
             error_code: "INVALID_DATA",
-            error_description: "O id do motorista informado não é válido."
+            error_description: "Motorista invalido  "
           });
         }
       }
