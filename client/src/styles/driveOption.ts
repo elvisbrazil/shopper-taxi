@@ -1,6 +1,7 @@
-// src/styles/driveOption.ts
+
 import styled from 'styled-components';
 
+// Layout principal
 export const MainContainer = styled.main`
   display: flex;
   min-height: 100vh;
@@ -22,6 +23,7 @@ export const MapSection = styled.div`
   }
 `;
 
+// Componentes do cartão do motorista
 export const DriverList = styled.div`
   flex: 1;
   padding: 1rem;
@@ -32,18 +34,22 @@ export const DriverList = styled.div`
 `;
 
 export const DriverCard = styled.div`
-  display: flex;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  background: white;
+  border-radius: 12px;
   padding: 1rem;
   margin-bottom: 1rem;
-  transition: box-shadow 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+  display: flex;
+  border: 1px solid #ddd;
 
   &:hover {
+    transform: translateY(-2px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   }
 `;
 
+// Elementos visuais do cartão
 export const CarIcon = styled.img`
   width: 120px;
   height: auto;
@@ -52,13 +58,44 @@ export const CarIcon = styled.img`
 
 export const DriverDetails = styled.div`
   flex: 1;
+  padding: 1rem;
 `;
 
-export const DriverName = styled.h2`
-  font-size: 1.25rem;
+// Tipografia e informações
+export const DriverName = styled.h3`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.2rem;
   color: #1b5e20;
+  margin-bottom: 1rem;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
 `;
 
+export const InfoRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: #616161;
+  
+  svg {
+    color: #2e7d32;
+    width: 20px;    
+    height: 20px;   
+    flex-shrink: 0; 
+    display: flex;  
+    align-items: center;
+    justify-content: center;
+  }
+`;
+
+// Informações complementares
 export const DriverDescription = styled.p`
   font-size: 1rem;
   color: #616161;
@@ -69,6 +106,7 @@ export const DriverVehicle = styled.p`
   color: #616161;
 `;
 
+// Elementos de avaliação
 export const DriverReview = styled.div`
   display: flex;
   align-items: center;
@@ -83,23 +121,49 @@ export const Stars = styled.img`
   margin-left: 0.5rem;
 `;
 
+// Elementos de valor e preço
+export const Value = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #2e7d32;
+  margin-top: 1rem;
+`;
+
 export const DriverValue = styled.p`
   font-size: 1rem;
   color: #1b5e20;
   font-weight: bold;
 `;
 
-export const ConfirmButton = styled.button`
-  background-color: #2e7d32;
-  color: white;
+export const Button = styled.button`
+  padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
-  padding: 0.75rem;
+  color: white;
   font-size: 1rem;
   cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+export const ConfirmButton = styled(Button)`
+  background-color: #2e7d32;
 
   &:hover {
     background-color: #1b5e20;
+  }
+`;
+
+export const HomeButton = styled(Button)`
+  background-color: #8acb64;
+
+  &:hover {
+    background-color: #517a47;
   }
 `;
 
@@ -118,3 +182,59 @@ export const BackButton = styled.button`
     background-color: #b71c1c;
   }
 `;
+
+export const Container = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f0f0f0;
+  padding: 2rem;
+`;
+
+export const ContentWrapper = styled.div`
+  background-color: #e8f5e9;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  width: 100%;
+  max-width: 800px;
+`;
+
+export const Header = styled.h1`
+  font-size: 2rem;
+  color: #1b5e20;
+  text-align: center;
+  margin-bottom: 2rem;
+`;
+
+export const InputWrapper = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+`;
+
+export const Input = styled.input`
+  flex: 1;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+`;
+
+export const Select = styled.select`
+  flex: 1;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+`;
+
+export const CardContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px;
+`;
+
+

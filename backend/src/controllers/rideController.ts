@@ -18,7 +18,6 @@ export class RideController {
     try {
       const { customer_id, origin, destination } = req.body;
 
-      // Verificação básica dos dados fornecidos
       if (!customer_id || !origin || !destination) {
         return res.status(400).json({
           error_code: 'INVALID_DATA',
@@ -27,22 +26,50 @@ export class RideController {
       }
 
       const estimate = await this.googleMapsService.estimateRide({ 
-        customer_id, origin, destination 
+        customer_id, 
+        origin, 
+        destination 
       });
 
-      const googleMapsResultId = await this.databaseService.saveGoogleMapsResult(estimate, customer_id);
-      const viagemId = await this.databaseService.saveRide(estimate, customer_id);
+      await this.databaseService.saveGoogleMapsResult(estimate, customer_id);
+      await this.databaseService.saveRide(estimate, customer_id);
 
       const options = await this.getDriverOptions(estimate.distance);
 
-      res.json({
-        origin: estimate.origin,
-        destination: estimate.destination,
-        distance: estimate.distance,
-        duration: estimate.duration,
-        options,
+      // Formatação da duração em string (convertendo segundos para formato legível)
+      const formatDuration = (seconds: number): string => {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        return hours > 0 ? `${hours}h ${minutes}min` : `${minutes}min`;
+      };
+
+      // Construindo a resposta no formato exato esperado
+      const response: RideEstimateResponse = {
+        origin: {
+          latitude: Number(estimate.origin.latitude),
+          longitude: Number(estimate.origin.longitude)
+        },
+        destination: {
+          latitude: Number(estimate.destination.latitude),
+          longitude: Number(estimate.destination.longitude)
+        },
+        distance: Number(estimate.distance),
+        duration: formatDuration(estimate.duration),
+        options: options.map(driver => ({
+          id: Number(driver.id),
+          name: String(driver.name),
+          description: String(driver.description),
+          vehicle: String(driver.vehicle),
+          review: {
+            rating: Number(driver.review.rating),
+            comment: String(driver.review.comment)
+          },
+          value: Number(driver.value)
+        })),
         routeResponse: estimate.routeResponse
-      });
+      };
+
+      res.json(response);
     } catch (error) {
       console.error('Erro na estimativa de corrida:', error);
       res.status(500).json({ error: 'Erro na estimativa de corrida' });

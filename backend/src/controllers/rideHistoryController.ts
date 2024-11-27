@@ -46,22 +46,21 @@ export class RideHistoryController {
 
       const response = {
         customer_id,
-        rides: rides.map((ride: any) => ({
+        rides: rides.map(ride => ({
           id: ride.id,
-          date: ride.data,
+          date: ride.data, // campo data do banco
           origin: ride.origin,
           destination: ride.destination,
-          distance: ride.distancia_km,
+          distance: Number(ride.distancia_km),
           duration: ride.duracao_estimada,
           driver: {
             id: ride.motorista_id,
             name: ride.motorista_nome
           },
-          value: ride.valor
-        })),
-        description: "Operação realizada com sucesso"
+          value: Number(ride.valor)
+        }))
       };
-
+      
       res.status(200).json(response);
     } catch (error) {
       console.error('Erro ao buscar viagens:', error);

@@ -186,7 +186,7 @@ export default function Home({ onRideConfirm }: HomeProps) {
       setResponse(data);
     } catch (error: any) {
       console.error('Erro ao solicitar estimativa:', error);
-      toast.error(error.message || 'Erro ao solicitar estimativa. Por favor, tente novamente.');
+      toast.error(error.message || 'Erro ao solicitar estimativa.');
     }
   };
 
@@ -212,7 +212,7 @@ export default function Home({ onRideConfirm }: HomeProps) {
             <IconWrapper>
               <Navigation size={32} />
             </IconWrapper>
-            <Title>Sistema de Corridas</Title>
+            <Title>Solicitação de viagem</Title>
           </CardHeader>
           <Form onSubmit={handleSubmit}>
             <UserIdInput
