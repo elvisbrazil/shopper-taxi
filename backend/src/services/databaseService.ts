@@ -1,8 +1,21 @@
 import { Connection } from 'mysql2/promise';
 import connect from '../database/database';
-import { RideEstimateResponse, RideConfirmRequest, GoogleMapsResult, Ride } from '../types';
+import { RideEstimateResponse, RideConfirmRequest, GoogleMapsResult} from '../types';
 
-
+export interface Ride {
+  usuario_id: string;
+  origin: string;
+  origin_latitude: number;
+  origin_longitude: number;
+  destination: string;
+  destination_latitude: number;
+  destination_longitude: number;
+  distancia_km: number;
+  duracao_estimada: number;
+  valor: number;
+  status?: string;
+  motorista_id?: number;
+}
 
 export class DatabaseService {
   private connection: Connection;
@@ -47,28 +60,40 @@ export class DatabaseService {
   // Métodos relacionados a Viagens
   async saveRide(estimate: RideEstimateResponse, userId: string): Promise<number> {
     if (!await this.userExists(userId)) {
-      throw new Error(`Usuário com ID ${userId} não encontrado.`);
+        throw new Error(`Usuário com ID ${userId} não encontrado.`);
     }
 
-    const { origin, destination, distance, duration } = estimate;
+    // Desestruture os dados da estimativa
+    const { origin, destination, distance, duration, routeResponse } = estimate;
+
+    // Extraia os endereços de origin e destination do routeResponse
+    const originAddress = routeResponse.origin_addresses.length > 0 ? routeResponse.origin_addresses[0] : 'Endereço não disponível';
+    const destinationAddress = routeResponse.destination_addresses.length > 0 ? routeResponse.destination_addresses[0] : 'Endereço não disponível';
 
     const ride: Ride = {
-      usuario_id: userId,
-      origin: `${origin.address}`,
-      origin_latitude: origin.latitude,
-      origin_longitude: origin.longitude,
-      destination: `${destination.address}`,
-      destination_latitude: destination.latitude,
-      destination_longitude: destination.longitude,
-      distancia_km: Number((distance / 1000).toFixed(2)),
-      duracao_estimada: Number((duration / 60).toFixed(2)),
-      valor: 0 
+        usuario_id: userId,
+        origin: originAddress,
+        origin_latitude: origin.latitude,
+        origin_longitude: origin.longitude,
+        destination: destinationAddress,
+        destination_latitude: destination.latitude,
+        destination_longitude: destination.longitude,
+        distancia_km: Number((distance / 1000).toFixed(2)),
+        duracao_estimada: Number((duration / 60).toFixed(2)),
+        valor: 0 // Valor inicial
     };
 
+    console.log('Dados da corrida a serem inseridos:', JSON.stringify(ride, null, 2));
+
     const query = 'INSERT INTO viagens SET ?';
-    const [result]: any = await this.connection.query(query, ride);
-    return result.insertId;
-  }
+    try {
+        const [result]: any = await this.connection.query(query, ride);
+        return result.insertId;
+    } catch (error) {
+        console.error('Erro ao inserir dados:', error);
+        throw error; // ou trate o erro conforme necessário
+    }
+}
 
   async getLastRideDetails(userId: string): Promise<Ride | null> {
     const query = `

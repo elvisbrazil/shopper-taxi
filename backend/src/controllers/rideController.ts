@@ -53,12 +53,32 @@ export class RideController {
   async confirmRide(req: Request, res: Response): Promise<void> {
     try {
       const { customer_id, origin, destination, distance, driver } = req.body;
-  
-      // Verificação básica dos dados fornecidos
-      if (!customer_id || !origin || !destination || distance === undefined) {
+
+      // Log inicial para debug
+      console.log('Dados recebidos na requisição:', {
+        customer_id,
+        origin,
+        destination,
+        distance,
+        driver
+      });
+
+      // Validação mais detalhada com logs
+      if (!customer_id) {
+        console.log('customer_id inválido:', customer_id);
         return res.status(400).json({
           error_code: 'INVALID_DATA',
-          error_description: 'Os dados fornecidos no corpo da requisição são inválidos.',
+          error_description: 'customer_id não fornecido',
+        });
+      }
+
+
+
+      if (!driver?.id) {
+        console.log('driver inválido:', driver);
+        return res.status(400).json({
+          error_code: 'INVALID_DATA',
+          error_description: 'Dados do motorista inválidos',
         });
       }
   
