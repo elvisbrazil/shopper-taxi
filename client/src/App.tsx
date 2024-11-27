@@ -7,31 +7,8 @@ import DriveList from './components/DriverList';
 import LoadingCar from './components/LoadingCar';
 import { useState } from 'react';
 import './styles/transitions.css';
+import { DriverOptionsProps } from './types';
 
-interface DriverOptionsProps {
-  customer_id: string;
-  origin: {
-    latitude: number;
-    longitude: number;
-  };
-  destination: {
-    latitude: number;
-    longitude: number;
-  };
-  distance: number;
-  duration: string;
-  options: Array<{
-    id: number;
-    name: string;
-    description: string;
-    vehicle: string;
-    review: {
-      rating: number;
-      comment: string;
-    };
-    value: number;
-  }>;
-}
 
 export default function App() {
   const location = useLocation();

@@ -15,17 +15,6 @@ services:
     networks:
       - backend
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    restart: unless-stopped
-    ports:
-      - "8081:80"  # Acesse o phpMyAdmin em http://localhost:8081
-    environment:
-      - PMA_HOST=mysqldb
-      - PMA_USER=root
-      - PMA_PASSWORD=root
-    networks:
-      - backend
 
   client-ui:
     depends_on:

@@ -67,3 +67,15 @@ export interface RideEstimateRequest {
     status?: string;
     motorista_id?: number;
   }
+
+  export interface Driver {
+    id: string;
+    nome: string;
+    descricao: string;
+    carro: string;
+    avaliacao: number;
+    minimo: number;
+    taxa_km: number;
+    comment?: string;
+  }
+  

@@ -1,4 +1,3 @@
-
 import * as S from '../../styles/driveOption';
 import MapWithCoordinates from '../MapWithCoordinates';
 import twoStars from '../../assets/2-stars.svg';
@@ -8,22 +7,10 @@ import car1 from '../../assets/car-1.svg';
 import car2 from '../../assets/car-2.svg';
 import car3 from '../../assets/car-3.svg';
 import { useNavigate } from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast'; // Adicionar Toaster
+import { DriverOptionsProps } from '../../types';
 
-interface DriverOptionsProps {
-  customer_id: string;
-  origin: { latitude: number; longitude: number };
-  destination: { latitude: number; longitude: number };
-  distance: number;
-  duration: string;
-  options: Array<{
-    id: number;
-    name: string;
-    description: string;
-    vehicle: string;
-    review: { rating: number; comment: string };
-    value: number;
-  }>;
-}
+
 
 const renderStars = (rating: number) => {
   switch (rating) {
@@ -58,11 +45,12 @@ export default function DriverOptions({ customer_id, origin, destination, distan
     const driver = options.find((driver) => driver.id === driverId);
     if (!driver) return;
   
+    const distanceInKm = Number((distance / 1000).toFixed(2));
     const confirmData = {
       customer_id,
       origin: `${origin.latitude}, ${origin.longitude}`,
       destination: `${destination.latitude}, ${destination.longitude}`,
-      distance,
+      distance: distanceInKm,
       duration,
       driver: {
         id: driver.id,
@@ -80,18 +68,28 @@ export default function DriverOptions({ customer_id, origin, destination, distan
         body: JSON.stringify(confirmData),
       });
   
+      const data = await response.json();
+  
       if (!response.ok) {
-        throw new Error(`Erro ao confirmar a corrida: ${response.statusText}`);
+        if (response.status === 406) {
+          toast.error(data.error_description, {
+            duration: 4000,
+            position: 'bottom-center',
+          });
+          return;
+        }
+        throw new Error(data.error_description || 'Erro ao confirmar a corrida');
       }
   
-      const data = await response.json();
-      console.log('Confirmação de corrida:', data);
-      
-      // Redirecionamento usando navigate após sucesso
+      toast.success('Corrida confirmada com sucesso!');
       navigate('/DriverList');
-      
+  
     } catch (error) {
-      console.error('Erro ao confirmar a corrida:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao confirmar a corrida';
+      toast.error(errorMessage, {
+        duration: 4000,
+        position: 'bottom-center',
+      });
     }
   };
 
@@ -101,6 +99,7 @@ export default function DriverOptions({ customer_id, origin, destination, distan
 
   return (
     <S.MainContainer>
+      <Toaster position="bottom-center" /> {/* Adicionar o Toaster aqui */}
       <S.MapSection>
         <MapWithCoordinates origin={origin} destination={destination} />
       </S.MapSection>

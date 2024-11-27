@@ -1,21 +1,6 @@
 import { Connection } from 'mysql2/promise';
 import connect from '../database/database';
-import { RideEstimateResponse, RideConfirmRequest, GoogleMapsResult} from '../types';
-
-export interface Ride {
-  usuario_id: string;
-  origin: string;
-  origin_latitude: number;
-  origin_longitude: number;
-  destination: string;
-  destination_latitude: number;
-  destination_longitude: number;
-  distancia_km: number;
-  duracao_estimada: number;
-  valor: number;
-  status?: string;
-  motorista_id?: number;
-}
+import { RideEstimateResponse, RideConfirmRequest, GoogleMapsResult, Ride } from '../types';
 
 export class DatabaseService {
   private connection: Connection;
@@ -30,16 +15,14 @@ export class DatabaseService {
 
   // Métodos relacionados ao Google Maps
   async saveGoogleMapsResult(estimate: RideEstimateResponse, userId: string): Promise<number> {
-    const { origin, destination, distance, duration, routeResponse } = estimate;
-
     const data: GoogleMapsResult = {
       usuario_id: userId,
-      origin: `${origin.latitude},${origin.longitude}`,
-      destination: `${destination.latitude},${destination.longitude}`,
-      distancia_km: Number((distance / 1000).toFixed(2)),
-      duracao_estimada: Number((duration / 60).toFixed(2)),
+      origin: `${estimate.origin.latitude},${estimate.origin.longitude}`,
+      destination: `${estimate.destination.latitude},${estimate.destination.longitude}`,
+      distancia_km: Number((estimate.distance / 1000).toFixed(2)),
+      duracao_estimada: Number((estimate.duration / 60).toFixed(2)),
       status: 'sucesso',
-      response_api: JSON.stringify(routeResponse)
+      response_api: JSON.stringify(estimate.routeResponse)
     };
 
     const query = `
@@ -60,40 +43,26 @@ export class DatabaseService {
   // Métodos relacionados a Viagens
   async saveRide(estimate: RideEstimateResponse, userId: string): Promise<number> {
     if (!await this.userExists(userId)) {
-        throw new Error(`Usuário com ID ${userId} não encontrado.`);
+      throw new Error(`Usuário com ID ${userId} não encontrado.`);
     }
-
-    // Desestruture os dados da estimativa
-    const { origin, destination, distance, duration, routeResponse } = estimate;
-
-    // Extraia os endereços de origin e destination do routeResponse
-    const originAddress = routeResponse.origin_addresses.length > 0 ? routeResponse.origin_addresses[0] : 'Endereço não disponível';
-    const destinationAddress = routeResponse.destination_addresses.length > 0 ? routeResponse.destination_addresses[0] : 'Endereço não disponível';
 
     const ride: Ride = {
-        usuario_id: userId,
-        origin: originAddress,
-        origin_latitude: origin.latitude,
-        origin_longitude: origin.longitude,
-        destination: destinationAddress,
-        destination_latitude: destination.latitude,
-        destination_longitude: destination.longitude,
-        distancia_km: Number((distance / 1000).toFixed(2)),
-        duracao_estimada: Number((duration / 60).toFixed(2)),
-        valor: 0 // Valor inicial
+      usuario_id: userId,
+      origin: estimate.routeResponse.origin_addresses[0] || 'Endereço não disponível',
+      origin_latitude: estimate.origin.latitude,
+      origin_longitude: estimate.origin.longitude,
+      destination: estimate.routeResponse.destination_addresses[0] || 'Endereço não disponível',
+      destination_latitude: estimate.destination.latitude,
+      destination_longitude: estimate.destination.longitude,
+      distancia_km: Number((estimate.distance / 1000).toFixed(2)),
+      duracao_estimada: Number((estimate.duration / 60).toFixed(2)),
+      valor: 0 
     };
 
-    console.log('Dados da corrida a serem inseridos:', JSON.stringify(ride, null, 2));
-
     const query = 'INSERT INTO viagens SET ?';
-    try {
-        const [result]: any = await this.connection.query(query, ride);
-        return result.insertId;
-    } catch (error) {
-        console.error('Erro ao inserir dados:', error);
-        throw error; // ou trate o erro conforme necessário
-    }
-}
+    const [result]: any = await this.connection.query(query, ride);
+    return result.insertId;
+  }
 
   async getLastRideDetails(userId: string): Promise<Ride | null> {
     const query = `

@@ -1,4 +1,3 @@
-
 import styled from 'styled-components';
 
 // Layout principal
@@ -139,16 +138,22 @@ export const DriverValue = styled.p`
 `;
 
 export const Button = styled.button`
-  padding: 0.5rem 1rem;
+  background-color: #2e7d32;
+  color: white;
   border: none;
   border-radius: 4px;
-  color: white;
+  padding: 0.75rem;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+
+  &:hover {
+    background-color: #1b5e20;
+  }
+
+  @media (max-width: 767px) {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
 `;
 
 export const ConfirmButton = styled(Button)`
@@ -237,4 +242,92 @@ export const CardContainer = styled.div`
   padding: 20px;
 `;
 
+
+
+export const Pagination = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+`;
+
+export const PageButton = styled.button`
+  background-color: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  margin: 0 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: #1b5e20;
+  }
+`;
+
+export const PageInfo = styled.span`
+  margin: 0 10px;
+  font-size: 1rem;
+  color: #2e7d32;
+`;
+
+
+export const FormSection = styled.div`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+`;
+
+export const Card = styled.div`
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  width: 100%;
+  max-width: 400px;
+`;
+
+export const CardHeader = styled.div`
+  text-align: center;
+  margin-bottom: 1.5rem;
+`;
+
+export const IconWrapper = styled.div`
+  background-color: #2e7d32;
+  color: white;
+  padding: 0.75rem;
+  border-radius: 50%;
+  width: 4rem;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+`;
+
+export const Title = styled.h1`
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1b5e20;
+`;
+
+export const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+export const ErrorMessage = styled.p`
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+`;
 
