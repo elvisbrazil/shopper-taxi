@@ -5,10 +5,10 @@ services:
     restart: unless-stopped
     environment:
       - TZ=America/Sao_Paulo
-      - MYSQL_ROOT_PASSWORD=$MYSQLDB_ROOT_PASSWORD
-      - MYSQL_DATABASE=$MYSQLDB_DATABASE
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=sistema
     ports:
-      - $MYSQLDB_LOCAL_PORT:$MYSQLDB_DOCKER_PORT
+      - 3307:3306
     volumes:
       - ./database:/tmp/database
     command: mysqld --init-file="/tmp/database/install_db.sql"
@@ -22,8 +22,8 @@ services:
       - "8081:80"  # Acesse o phpMyAdmin em http://localhost:8081
     environment:
       - PMA_HOST=mysqldb
-      - PMA_USER=$MYSQLDB_USER
-      - PMA_PASSWORD=$MYSQLDB_ROOT_PASSWORD
+      - PMA_USER=root
+      - PMA_PASSWORD=root
     networks:
       - backend
 
@@ -33,11 +33,11 @@ services:
     build:
       context: ./client
       args:
-        - $REACT_LOCAL_PORT:$REACT_DOCKER_PORT
+        - 80:80
     ports:
       - 80:3000
     environment:
-      - REACT_APP_GOOGLE_API_KEY=$GOOGLE_API_KEY
+      - REACT_APP_GOOGLE_API_KEY=${GOOGLE_API_KEY}
     volumes:
       - ./client:/client
       - /client/node_modules
@@ -56,11 +56,11 @@ services:
       - "8080:8080"
     environment:
       - DB_HOST=mysqldb
-      - DB_USER=$MYSQLDB_USER
-      - DB_PASSWORD=$MYSQLDB_ROOT_PASSWORD
-      - DB_NAME=$MYSQLDB_DATABASE
-      - DB_PORT=$MYSQLDB_DOCKER_PORT
-      - GOOGLE_API_KEY=$GOOGLE_API_KEY
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=sistema
+      - DB_PORT=3306
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
     volumes:
       - ./backend:/app
       - /app/node_modules

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import toast, { Toaster } from 'react-hot-toast';
-import { Calendar, MapPin, Navigation, Clock, DollarSign, Car } from 'lucide-react';
+import { Calendar, MapPin, Navigation, Clock, DollarSign, Car, Home, Search } from 'lucide-react';
 
 // Interfaces
 interface Driver {
@@ -20,17 +20,22 @@ interface Ride {
   value: string;
 }
 
-interface RideResponse {
-  customer_id: string;
-  rides: Ride[];
-}
-
+// Adicionar estados de paginação
 const TravelList: React.FC = () => {
   const [selectedDriver, setSelectedDriver] = useState('');
   const [userId, setUserId] = useState('');
   const [rides, setRides] = useState<Ride[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
+  // Calcular páginas
+  const totalPages = Math.ceil(rides.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentRides = rides.slice(indexOfFirstItem, indexOfLastItem);
+
   const drivers = [
     { id: 1, name: "Brian O'Conner" },
     { id: 2, name: "Dominic Toretto" },
@@ -53,29 +58,74 @@ const TravelList: React.FC = () => {
   
     try {
       const response = await fetch(`http://localhost:8080/ride/${userId}?driver_id=${selectedDriver}`);
+      const data = await response.json();
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        
-        if (response.status === 400 && errorData.error_code === 'INVALID_DRIVER') {
-          throw new Error(errorData.error_description);
-        }
-        
-        throw new Error('Erro ao buscar viagens');
+      if (response.status === 200) {
+        setRides(data.rides);
+        console.log('Resposta do servidor:', data);
+        toast.success(data.description); // Usa a mensagem de sucesso do servidor
+      } else {
+        toast.error(data.error_description);
+        throw new Error(data.error_description);
       }
-  
-      const data: RideResponse = await response.json();
-      setRides(data.rides);
-      toast.success('Viagens carregadas com sucesso!');
     } catch (err: any) {
-      const errorMessage = err.message || 'Erro ao carregar viagens';
-      toast.error(errorMessage);
-      setError(errorMessage);
+      setError(err.message || 'Erro ao carregar viagens');
       console.error('Erro detalhado:', err);
     } finally {
       setLoading(false);
     }
   };
+
+  // Função auxiliar para converter minutos em dias, horas e minutos
+  const formatDuration = (minutes: number): string => {
+    const days = Math.floor(minutes / (24 * 60));
+    const hours = Math.floor((minutes % (24 * 60)) / 60);
+    const remainingMinutes = Math.floor(minutes % 60);
+  
+    let formattedTime = '';
+    
+    if (days > 0) {
+      formattedTime += `${days}d `;
+    }
+    
+    if (hours > 0) {
+      formattedTime += `${hours}h `;
+    }
+    
+    if (remainingMinutes > 0 || formattedTime === '') {
+      formattedTime += `${remainingMinutes}min`;
+    }
+  
+    return formattedTime.trim();
+  };
+
+  // Botões de navegação estilizados
+  const PaginationWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+  `;
+
+  const PageButton = styled.button<{ isActive?: boolean }>`
+    padding: 8px 16px;
+    border: 1px solid #2e7d32;
+    background-color: ${props => props.isActive ? '#2e7d32' : 'white'};
+    color: ${props => props.isActive ? 'white' : '#2e7d32'};
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: #1b5e20;
+      color: white;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  `;
 
   return (
     
@@ -102,21 +152,25 @@ const TravelList: React.FC = () => {
   ))}
 </Select>
           <ConfirmButton onClick={fetchRides}>
+            <Search size={18} />
             {loading ? 'Carregando...' : 'Buscar'}
           </ConfirmButton>
+          <HomeButton onClick={() => window.location.href = '/'}>
+            <Home size={18} />
+            Início
+          </HomeButton>
         </InputWrapper>
 
-        {error && <ErrorMessage>{error}</ErrorMessage>}
+      
 
         <CardContainer>
-          {rides.map((ride) => (
+          {currentRides.map((ride) => (
             <DriverCard key={ride.id}>
               <DriverDetails>
                 <DriverName>
                   <Car size={20} />
                   Corrida #{ride.id}
                 </DriverName>
-                
                 <InfoRow>
                   <Calendar size={16} />
                   {new Date(ride.date).toLocaleDateString('pt-BR', {
@@ -140,7 +194,7 @@ const TravelList: React.FC = () => {
 
                 <InfoRow>
                   <Clock size={16} />
-                  {parseFloat(ride.duration).toFixed(0)} min • {parseFloat(ride.distance).toFixed(1)} km
+                  {formatDuration(parseFloat(ride.duration))} • {parseFloat(ride.distance).toFixed(1)} km
                 </InfoRow>
 
                 <Value>
@@ -151,6 +205,34 @@ const TravelList: React.FC = () => {
             </DriverCard>
           ))}
         </CardContainer>
+
+        {rides.length > itemsPerPage && (
+          <PaginationWrapper>
+            <PageButton 
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Anterior
+            </PageButton>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
+              <PageButton
+                key={number}
+                onClick={() => setCurrentPage(number)}
+                isActive={currentPage === number}
+              >
+                {number}
+              </PageButton>
+            ))}
+
+            <PageButton
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Próxima
+            </PageButton>
+          </PaginationWrapper>
+        )}
       </ContentWrapper>
     </Container>
   );
@@ -215,12 +297,14 @@ const CardContainer = styled.div`
 const DriverCard = styled.div`
   background: white;
   border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
 
   &:hover {
-    transform: translateY(-5px);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   }
 `;
 
@@ -262,39 +346,33 @@ const Value = styled.div`
   margin-top: 10px;
 `;
 
-const ConfirmButton = styled.button`
-  flex: 1;
-  background-color: #2e7d32;
-  color: white;
+const Button = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
   border: none;
   border-radius: 4px;
-  padding: 0.75rem;
-  font-size: 1rem;
   cursor: pointer;
+  transition: background-color 0.2s;
+  color: white;
+`;
+
+const ConfirmButton = styled(Button)`
+  background-color: #2e7d32;
 
   &:hover {
     background-color: #1b5e20;
   }
 `;
 
-const BackButton = styled.button`
-  flex: 1;
-  background-color: #d32f2f;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 0.75rem;
-  font-size: 1rem;
-  cursor: pointer;
+const HomeButton = styled(Button)`
+  background-color: #8acb64;
 
   &:hover {
-    background-color: #b71c1c;
+    background-color: #517a47;
   }
-`;
-
-const ErrorMessage = styled.div`
-  color: #d32f2f;
-  margin: 1rem 0;
-  text-align: center;
 `;
 
